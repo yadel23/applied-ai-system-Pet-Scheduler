@@ -5,7 +5,17 @@
 **a. Initial design**
 
 - Briefly describe your initial UML design.
+The Uml design includes these entities: owner, pet, petTasks, TimeWindow, DailySchedule, ScheduledItem, and SchedulingRules. I believe these are these are the core classes i need to implement the requirements of creating a robust app to help pet owners stay consistent with pet care.
+   
 - What classes did you include, and what responsibilities did you assign to each?
+Owner: represents pet owner info and their scheduling constraints and preferences.includes name, pet name, availability, owner preferences
+Pet: pet being cared for and needs, class includes, name, species, breed, age, needs
+PetTasks: represents care and activities needed for a pet. Method includes task type, title, duration, priority, time window
+TimeWindow: 
+TimeWindow: provides time window needed to complete Pet Tasks. Method includes duration, constraints, and overlaps
+DailySchedule: will be responsible to output daily plan for specific owner for pet care, Includes date, owner + pet, todo items, notes, and durations
+ScheduledItem: task assignment in a schedule, includes PetTask, duration
+SchedulingRules: helps with scheduling conflicts based on overlaps and owner preferences 
 
 **b. Design changes**
 
