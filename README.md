@@ -32,6 +32,13 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+# Testing PawPal+
+```bash
+python3 -m pytest
+```
+
+Confidence Level - 4 stars
+
 ### Suggested workflow
 
 1. Read the scenario carefully and identify requirements and edge cases.

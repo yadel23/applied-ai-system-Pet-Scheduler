@@ -37,8 +37,9 @@ priority matters the most and i considered that as a mandatory task, and removed
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.
+once schedule is full with high priority task(s), another high priority item can't be added.
 - Why is that tradeoff reasonable for this scenario?
-
+Since there is only 3 priority options it is a reasonable tradeoff since they are both high task. 
 ---
 
 ## 3. AI Collaboration
@@ -62,13 +63,16 @@ I verified by adding different types of task with different durations and priori
 **a. What you tested**
 
 - What behaviors did you test?
+I tested the functionality is not broken by inputting different user info 
 - Why were these tests important?
+These tests are important because it insures that current/future development works as expected. 
 
 **b. Confidence**
 
 - How confident are you that your scheduler works correctly?
+I am very confident that the scheduler works correctly. 
 - What edge cases would you test next if you had more time?
-
+I want to test that a person can't pass the max of the availability window set by user input
 ---
 
 ## 5. Reflection
@@ -76,11 +80,13 @@ I verified by adding different types of task with different durations and priori
 **a. What went well**
 
 - What part of this project are you most satisfied with?
+I added a availability windows so that user can pick when they can complete the tasks and I added a scheduled task that priorities the most important tasks first. 
 
 **b. What you would improve**
 
 - If you had another iteration, what would you improve or redesign?
-
+I would want to show the user a calendar, so it is easier to visualize what their day tasks will look like. 
 **c. Key takeaway**
 
 - What is one important thing you learned about designing systems or working with AI on this project?
+I found the designing is iterative and that it will get redesigned based on new needs. I found leveraging AI to help me design and build apps has helped me take more time to do UAT and for brainstorming ideas.   

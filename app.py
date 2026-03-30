@@ -1,7 +1,6 @@
 import streamlit as st
-from datetime import date, time
-from models import Owner, Pet, PetTask, TaskType, TimeWindow, OwnerPreferences, SchedulingRules
-from taskScheduler import TaskScheduler
+from datetime import time
+from pawpal_system import Owner, Pet, Task, Scheduler
 
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="centered")
 
@@ -44,7 +43,50 @@ st.divider()
 st.subheader("Quick Demo Inputs (UI only)")
 owner_name = st.text_input("Owner name", value="Jordan")
 pet_name = st.text_input("Pet name", value="Mochi")
-species = st.selectbox("Species", ["dog", "cat", "other"])
+col_species, col_age = st.columns(2)
+with col_species:
+    species = st.selectbox("Species", ["dog", "cat", "rabbit", "bird", "reptile", "other"])
+with col_age:
+    pet_age = st.number_input("Pet age (years)", min_value=0, max_value=30, value=2)
+
+st.markdown("### Availability Windows")
+st.caption("Add the time windows when you are available to complete tasks.")
+
+if "availability_windows" not in st.session_state:
+    st.session_state.availability_windows = []
+if "owner" not in st.session_state:
+    st.session_state.owner = None
+if "pet" not in st.session_state:
+    st.session_state.pet = None
+if "schedule" not in st.session_state:
+    st.session_state.schedule = None
+
+col_s, col_e = st.columns(2)
+with col_s:
+    window_start = st.time_input("Start time", value=time(8, 0), key="window_start")
+with col_e:
+    window_end = st.time_input("End time", value=time(12, 0), key="window_end")
+
+if st.button("Add window"):
+    if window_start >= window_end:
+        st.error("Start time must be before end time.")
+    else:
+        st.session_state.availability_windows.append(
+            {"start": window_start.strftime("%H:%M"), "end": window_end.strftime("%H:%M")}
+        )
+
+if st.session_state.availability_windows:
+    st.write("Your availability:")
+    cols = st.columns([3, 1])
+    for i, w in enumerate(st.session_state.availability_windows):
+        cols[0].write(f"{w['start']} – {w['end']}")
+        if cols[1].button("Remove", key=f"remove_window_{i}"):
+            st.session_state.availability_windows.pop(i)
+            st.rerun()
+else:
+    st.info("No availability windows added yet.")
+
+max_activity_minutes = st.number_input("Max activity (minutes)", min_value=30, max_value=480, value=180, step=10)
 
 st.markdown("### Tasks")
 st.caption("Add a few tasks. In your final version, these should feed into your scheduler.")
@@ -79,55 +121,54 @@ st.caption("This button should call your scheduling logic once you implement it.
 if st.button("Generate schedule"):
     if not st.session_state.tasks:
         st.error("Please add at least one task.")
+    elif not st.session_state.availability_windows:
+        st.error("Please add at least one availability window.")
     else:
-        # Create owner with default availability
-        owner_preferences = OwnerPreferences(
-            preferred_times=[TimeWindow(time(9, 0), time(12, 0))],
-            quiet_hrs=[TimeWindow(time(23, 0), time(7, 0))]
-        )
-        owner = Owner(
-            name=owner_name,
-            availability=[TimeWindow(time(8, 0), time(12, 0)), TimeWindow(time(14, 0), time(18, 0))],
-            preferences=owner_preferences
-        )
+        # Reuse existing pet if name and species haven't changed, otherwise create a new one
+        existing_pet = st.session_state.pet
+        if (existing_pet is None
+                or existing_pet.name != pet_name
+                or existing_pet.species != species
+                or existing_pet.age != pet_age):
+            st.session_state.pet = Pet(name=pet_name, species=species, age=pet_age)
+        pet = st.session_state.pet
 
-        # Create pet
-        pet = Pet(name=pet_name, species=species, age=2)
-
-        # Convert tasks to PetTask
-        pet_tasks = []
-        priority_map = {"low": 1, "medium": 3, "high": 5}
-        for i, task_dict in enumerate(st.session_state.tasks):
-            task_type = TaskType.WALK  # Default, could be smarter
-            if "feed" in task_dict["title"].lower():
-                task_type = TaskType.FEED
-            elif "med" in task_dict["title"].lower():
-                task_type = TaskType.MEDS
-            pet_task = PetTask(
-                task_id=f"task_{i}",
-                title=task_dict["title"],
-                task_type=task_type,
-                duration_min=task_dict["duration_minutes"],
-                priority=priority_map[task_dict["priority"]],
-                mandatory=task_dict["priority"] == "high"
+        # Reuse existing owner if name, windows, and max activity haven't changed
+        existing_owner = st.session_state.owner
+        if (existing_owner is None
+                or existing_owner.name != owner_name
+                or existing_owner.availability_windows != st.session_state.availability_windows
+                or existing_owner.max_activity_minutes != max_activity_minutes):
+            st.session_state.owner = Owner(
+                name=owner_name,
+                availability_windows=st.session_state.availability_windows,
+                max_activity_minutes=max_activity_minutes
             )
-            pet_tasks.append(pet_task)
+        owner = st.session_state.owner
 
-        # Create scheduler
-        rules = SchedulingRules()
-        scheduler = TaskScheduler(rules)
+        # Always rebuild tasks from current session state and attach to pet
+        pet.tasks = [
+            Task(
+                title=t["title"],
+                duration_minutes=t["duration_minutes"],
+                priority=t["priority"]
+            )
+            for t in st.session_state.tasks
+        ]
+        owner.pets = [pet]
 
-        # Generate schedule
-        today = date.today()
-        schedule = scheduler.generate(owner, pet, pet_tasks, today)
+        st.session_state.schedule = Scheduler(owner).run()
 
-        # Display results
+# Display schedule from session state so it persists across reruns
+schedule = st.session_state.schedule
+if schedule:
         st.success(f"Schedule generated for {schedule.date.strftime('%Y-%m-%d')}")
 
         if schedule.items:
             st.subheader("Scheduled Tasks")
+            sorted_items = sorted(schedule.items, key=lambda x: x.start)
             schedule_data = []
-            for item in schedule.items:
+            for item in sorted_items:
                 schedule_data.append({
                     "Time": f"{item.start.strftime('%H:%M')} - {item.end.strftime('%H:%M')}",
                     "Task": item.task.title,
@@ -136,6 +177,20 @@ if st.button("Generate schedule"):
                     "Reason": item.reason
                 })
             st.table(schedule_data)
+
+            st.subheader("Mark Tasks Complete")
+            for item in sorted_items:
+                done = st.checkbox(
+                    item.task.title,
+                    key=f"done_{item.task.title}",
+                    value=item.task.completed_today
+                )
+                if done and not item.task.completed_today:
+                    st.session_state.pet.complete_task(item.task.title)
+                    st.session_state.schedule = Scheduler(st.session_state.owner).run()
+                    st.rerun()
+        elif st.session_state.pet and all(t.completed for t in st.session_state.pet.tasks):
+            st.success("All scheduled tasks have been completed!")
         else:
             st.warning("No tasks could be scheduled.")
 
@@ -146,5 +201,20 @@ if st.button("Generate schedule"):
 
         st.subheader("Summary")
         st.write(f"Total scheduled time: {schedule.total_minutes_scheduled()} minutes")
-        st.write(f"Mandatory tasks: {len(schedule.get_mandatory_tasks())}")
-        st.write(f"Optional tasks: {len(schedule.get_optional_tasks())}")
+
+        mandatory = schedule.get_mandatory_tasks()
+        optional = schedule.get_optional_tasks()
+
+        st.write(f"**Mandatory tasks ({len(mandatory)}):**")
+        if mandatory:
+            for item in mandatory:
+                st.write(f"  - {item.task.title}")
+        else:
+            st.write("  None")
+
+        st.write(f"**Optional tasks ({len(optional)}):**")
+        if optional:
+            for item in optional:
+                st.write(f"  - {item.task.title}")
+        else:
+            st.write("  None")

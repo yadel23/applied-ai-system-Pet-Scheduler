@@ -60,6 +60,14 @@ class Pet:
     def get_pending_tasks(self) -> List[Task]:
         return [t for t in self.tasks if not t.completed]
 
+    def complete_task(self, title: str) -> bool:
+        """Mark the first matching pending task as complete. Returns True if found."""
+        for task in self.tasks:
+            if task.title == title and not task.completed:
+                task.mark_complete()
+                return True
+        return False
+
     def to_pet_model(self) -> PetModel:
         return PetModel(name=self.name, species=self.species, age=self.age)
 
@@ -114,7 +122,7 @@ class Scheduler:
         pet_model = pet.to_pet_model()
         pet_tasks = [
             task.to_pet_task(f"task_{i}")
-            for i, task in enumerate(pet.tasks)
+            for i, task in enumerate(pet.get_pending_tasks())
         ]
         scheduler = TaskScheduler(SchedulingRules())
         return scheduler.generate(owner_model, pet_model, pet_tasks, date.today())
