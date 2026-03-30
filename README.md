@@ -1,5 +1,8 @@
 # PawPal+ (Module 2 Project)
 
+## DEMO
+![PawPal App](Demo_Screenshot.png)
+
 ## Getting started
 
 ### Setup
