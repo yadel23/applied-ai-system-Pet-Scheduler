@@ -8,39 +8,37 @@ st.title("🐾 PawPal+")
 
 st.markdown(
     """
-Welcome to the PawPal+ starter app.
-
-This file is intentionally thin. It gives you a working Streamlit app so you can start quickly,
-but **it does not implement the project logic**. Your job is to design the system and build it.
-
-Use this app as your interactive demo once your backend classes/functions exist.
+#### Welcome to the PawPal+ app.
 """
 )
+# This file is intentionally thin. It gives you a working Streamlit app so you can start quickly,
+# but **it does not implement the project logic**. Your job is to design the system and build it.
+# Use this app as your interactive demo once your backend classes/functions exist.
 
-with st.expander("Scenario", expanded=True):
-    st.markdown(
-        """
-**PawPal+** is a pet care planning assistant. It helps a pet owner plan care tasks
-for their pet(s) based on constraints like time, priority, and preferences.
+# with st.expander("Scenario", expanded=True):
+#     st.markdown(
+#         """
+# **PawPal+** is a pet care planning assistant. It helps a pet owner plan care tasks
+# for their pet(s) based on constraints like time, priority, and preferences.
+# """
+#     )
+# # You will design and implement the scheduling logic and connect it to this Streamlit UI.
 
-You will design and implement the scheduling logic and connect it to this Streamlit UI.
-"""
-    )
 
-with st.expander("What you need to build", expanded=True):
-    st.markdown(
-        """
-At minimum, your system should:
-- Represent pet care tasks (what needs to happen, how long it takes, priority)
-- Represent the pet and the owner (basic info and preferences)
-- Build a plan/schedule for a day that chooses and orders tasks based on constraints
-- Explain the plan (why each task was chosen and when it happens)
-"""
-    )
+# with st.expander("What you need to build", expanded=True):
+#     st.markdown(
+#         """
+# At minimum, your system should:
+# - Represent pet care tasks (what needs to happen, how long it takes, priority)
+# - Represent the pet and the owner (basic info and preferences)
+# - Build a plan/schedule for a day that chooses and orders tasks based on constraints
+# - Explain the plan (why each task was chosen and when it happens)
+# """
+#     )
 
 st.divider()
 
-st.subheader("Quick Demo Inputs (UI only)")
+st.subheader("Pet Owner Input")
 owner_name = st.text_input("Owner name", value="Jordan")
 pet_name = st.text_input("Pet name", value="Mochi")
 col_species, col_age = st.columns(2)
@@ -50,7 +48,7 @@ with col_age:
     pet_age = st.number_input("Pet age (years)", min_value=0, max_value=30, value=2)
 
 st.markdown("### Availability Windows")
-st.caption("Add the time windows when you are available to complete tasks.")
+st.caption("Add the time windows when you are available to complete tasks. (must have at least one time window)")
 
 if "availability_windows" not in st.session_state:
     st.session_state.availability_windows = []
@@ -116,7 +114,7 @@ else:
 st.divider()
 
 st.subheader("Build Schedule")
-st.caption("This button should call your scheduling logic once you implement it.")
+st.caption("Use 'Generate schedule' button should to build your schedule.")
 
 if st.button("Generate schedule"):
     if not st.session_state.tasks:
@@ -178,7 +176,7 @@ if schedule:
                 })
             st.table(schedule_data)
 
-            st.subheader("Mark Tasks Complete")
+            st.subheader("Todo Task(s) List")
             for item in sorted_items:
                 done = st.checkbox(
                     item.task.title,
