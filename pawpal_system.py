@@ -1,5 +1,7 @@
 from datetime import date, time
 from typing import List, Optional
+import json
+import os
 from models import (
     Owner as OwnerModel, Pet as PetModel, PetTask, TaskType, TimeWindow,
     OwnerPreferences, SchedulingRules, DailySchedule
@@ -156,3 +158,70 @@ def generate_schedule(
     owner.add_pet(pet)
 
     return Scheduler(owner).run()
+
+
+def retrieve_pet_care_facts(species: str, age: int, task_titles: List[str]) -> dict:
+    """Retrieve relevant pet care facts for RAG."""
+    knowledge_path = os.path.join(os.path.dirname(__file__), "assets", "pet_knowledge.json")
+    try:
+        with open(knowledge_path, "r") as f:
+            knowledge = json.load(f)
+    except FileNotFoundError:
+        return {"general": "No specific knowledge available for this species."}
+    
+    if species not in knowledge:
+        return {"general": "No specific knowledge available for this species."}
+    
+    species_data = knowledge[species]
+    facts = {"general": species_data.get("general", "")}
+    
+    # Age-specific facts
+    age_group = "young" if age < 2 else "senior" if age > 7 else "adult"
+    facts["age_specific"] = species_data.get("age_specific", {}).get(age_group, "")
+    
+    # Task-specific facts
+    task_facts = {}
+    for title in task_titles:
+        title_lower = title.lower()
+        for task_key, fact in species_data.get("tasks", {}).items():
+            if task_key in title_lower:
+                task_facts[title] = fact
+                break
+    facts["tasks"] = task_facts
+    
+    return facts
+
+
+def answer_schedule_question(owner: Owner, pet: Pet, schedule, question: str) -> str:
+    """Answer user questions about the schedule using RAG."""
+    if not schedule:
+        return "Please generate a schedule first before asking questions."
+    
+    # Retrieve relevant facts
+    task_titles = [t.title for t in pet.tasks]
+    facts = retrieve_pet_care_facts(pet.species, pet.age, task_titles)
+    
+    # Build context from schedule
+    schedule_context = []
+    if schedule.items:
+        for item in sorted(schedule.items, key=lambda x: x.start):
+            schedule_context.append(f"- {item.task.title} at {item.start.strftime('%H:%M')} ({item.duration_minutes()} min): {item.reason}")
+    
+    # Simple rule-based response (expand with LLM if desired)
+    question_lower = question.lower()
+    
+    if "why" in question_lower and "schedule" in question_lower:
+        response = f"Based on {pet.species} care guidelines: {facts['general']}\n\n"
+        response += f"For a {pet.age}-year-old {pet.species}: {facts['age_specific']}\n\n"
+        response += "Your schedule:\n" + "\n".join(schedule_context)
+        return response
+    
+    elif "task" in question_lower:
+        task_info = []
+        for title, fact in facts["tasks"].items():
+            task_info.append(f"{title}: {fact}")
+        return "Task insights:\n" + "\n".join(task_info) + "\n\nSchedule details:\n" + "\n".join(schedule_context)
+    
+    else:
+        # Generic response
+        return f"For your {pet.species} {pet.name}: {facts['general']}\n\nSchedule summary:\n" + "\n".join(schedule_context)

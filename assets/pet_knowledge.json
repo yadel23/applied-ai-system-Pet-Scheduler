@@ -1,0 +1,41 @@
+{
+  "dog": {
+    "general": "Dogs are active and need daily exercise, socialization, and mental stimulation.",
+    "age_specific": {
+      "young": "Puppies need frequent short walks and playtime.",
+      "adult": "Adult dogs benefit from morning walks and afternoon play.",
+      "senior": "Older dogs need gentler exercise and more rest periods."
+    },
+    "tasks": {
+      "walk": "Daily walks help prevent obesity and provide mental stimulation.",
+      "feed": "Dogs should be fed 2-3 times daily with portion control.",
+      "groom": "Regular brushing prevents matting and skin issues."
+    }
+  },
+  "cat": {
+    "general": "Cats are independent but need daily interaction and litter maintenance.",
+    "age_specific": {
+      "young": "Kittens need playtime and kitten food.",
+      "adult": "Adult cats enjoy hunting games and clean litter.",
+      "senior": "Older cats need softer food and less stressful environments."
+    },
+    "tasks": {
+      "litter": "Clean litter daily to prevent health issues.",
+      "play": "Interactive play prevents boredom and obesity.",
+      "feed": "Cats prefer multiple small meals throughout the day."
+    }
+  },
+  "rabbit": {
+    "general": "Rabbits need space to hop and hay-based diet.",
+    "age_specific": {
+      "young": "Baby rabbits need constant hay and gentle handling.",
+      "adult": "Adult rabbits need daily exercise and fresh veggies.",
+      "senior": "Older rabbits need softer hay and vet checkups."
+    },
+    "tasks": {
+      "hay": "Provide unlimited hay for digestion.",
+      "exercise": "Allow supervised free-roaming time.",
+      "groom": "Brush fur to prevent hairballs."
+    }
+  }
+}

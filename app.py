@@ -75,12 +75,14 @@ if st.button("Add window"):
 
 if st.session_state.availability_windows:
     st.write("Your availability:")
-    cols = st.columns([3, 1])
     for i, w in enumerate(st.session_state.availability_windows):
-        cols[0].write(f"{w['start']} – {w['end']}")
-        if cols[1].button("Remove", key=f"remove_window_{i}"):
-            st.session_state.availability_windows.pop(i)
-            st.rerun()
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            st.write(f"{w['start']} – {w['end']}")
+        with col2:
+            if st.button("Remove", key=f"remove_window_{i}"):
+                st.session_state.availability_windows.pop(i)
+                st.rerun()
 else:
     st.info("No availability windows added yet.")
 
@@ -177,10 +179,10 @@ if schedule:
             st.table(schedule_data)
 
             st.subheader("Todo Task(s) List")
-            for item in sorted_items:
+            for i, item in enumerate(sorted_items):
                 done = st.checkbox(
                     item.task.title,
-                    key=f"done_{item.task.title}",
+                    key=f"done_{i}_{item.task.title}",
                     value=item.task.completed_today
                 )
                 if done and not item.task.completed_today:
@@ -216,3 +218,41 @@ if schedule:
                 st.write(f"  - {item.task.title}")
         else:
             st.write("  None")
+
+        st.write(f"**Optional tasks ({len(optional)}):**")
+        if optional:
+            for item in optional:
+                st.write(f"  - {item.task.title}")
+        else:
+            st.write("  None")
+
+# Chatbot in sidebar as toast-like chat
+with st.sidebar:
+    st.header("💬 PawPal+ Chat")
+    
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
+    
+    # Chat input at the top
+    if prompt := st.chat_input("Ask about your schedule..."):
+        if not st.session_state.schedule:
+            st.toast("Please generate a schedule first.", icon="❌")
+        elif not prompt.strip():
+            st.toast("Please enter a question.", icon="❓")
+        else:
+            from pawpal_system import answer_schedule_question
+            response = answer_schedule_question(
+                st.session_state.owner,
+                st.session_state.pet,
+                st.session_state.schedule,
+                prompt
+            )
+            st.session_state.chat_history.append({"question": prompt, "response": response})
+            st.rerun()
+    
+    # Display chat messages (most recent at top)
+    for chat in reversed(st.session_state.chat_history):
+        with st.chat_message("user"):
+            st.write(chat["question"])
+        with st.chat_message("assistant"):
+            st.write(chat["response"])

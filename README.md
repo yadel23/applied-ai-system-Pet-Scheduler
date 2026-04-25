@@ -13,6 +13,11 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+### App Demo (`app.py`)
+```bash
+streamlit run app.py
+```
+
 # Testing PawPal+
 ```bash
 python3 -m pytest
@@ -62,6 +67,7 @@ Confidence Level - 4 stars
 - Creates an owner with three pets (dog, cat, rabbit), each with three tasks
 - Prints a formatted "Today's Schedule" to the terminal per pet
 - Shows task times, names, and mandatory/optional labels
+
 
 
 <!-- ## Scenario
