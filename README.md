@@ -35,7 +35,7 @@ Confidence Level - 4 stars
 - High-priority tasks are automatically marked mandatory
 
 ### Smart Scheduling
-- Generates a conflict-free daily schedule based on owner availability, pet rest blocks, and quiet hours
+- Generates a conflict-free daily schedule based on owner availability, pet rest blocks, and quiet hours set by owner
 - Tasks are scored and ordered by a weighted formula (priority × 0.5 + urgency × 0.3 + preference match × 0.2)
 - Higher-priority and overdue tasks are placed first
 - Tasks are packed sequentially within windows — no gaps or double-booking
