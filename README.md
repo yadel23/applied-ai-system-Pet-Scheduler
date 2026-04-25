@@ -1,7 +1,7 @@
-# PawPal+ (Module 2 Project)
+# Applied AI System Pet Scheduler: PawPal+ 
 
 ## DEMO
-![PawPal App](Demo_Screenshot.png)
+![PawPal App](assets\Demo_Screenshot.png)
 
 ## Getting started
 

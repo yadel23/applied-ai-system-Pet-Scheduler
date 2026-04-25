@@ -1,5 +1,30 @@
+# Python artifacts
 __pycache__/
 .venv/
 .venv_new/
 .pytest_cache/
 .DS_Store
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# OS files
+.DS_Store
+
+# Editor files
+.vscode/
+*.swp
+*.swo
+
+# Data and local index files
+data/*.json
+chroma_db/
+*.sqlite3
+
+# Secrets
+.env

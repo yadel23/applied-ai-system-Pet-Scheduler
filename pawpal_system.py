@@ -197,31 +197,13 @@ def answer_schedule_question(owner: Owner, pet: Pet, schedule, question: str) ->
     if not schedule:
         return "Please generate a schedule first before asking questions."
     
-    # Retrieve relevant facts
-    task_titles = [t.title for t in pet.tasks]
-    facts = retrieve_pet_care_facts(pet.species, pet.age, task_titles)
-    
-    # Build context from schedule
-    schedule_context = []
-    if schedule.items:
-        for item in sorted(schedule.items, key=lambda x: x.start):
-            schedule_context.append(f"- {item.task.title} at {item.start.strftime('%H:%M')} ({item.duration_minutes()} min): {item.reason}")
-    
-    # Simple rule-based response (expand with LLM if desired)
-    question_lower = question.lower()
-    
-    if "why" in question_lower and "schedule" in question_lower:
-        response = f"Based on {pet.species} care guidelines: {facts['general']}\n\n"
-        response += f"For a {pet.age}-year-old {pet.species}: {facts['age_specific']}\n\n"
-        response += "Your schedule:\n" + "\n".join(schedule_context)
-        return response
-    
-    elif "task" in question_lower:
-        task_info = []
-        for title, fact in facts["tasks"].items():
-            task_info.append(f"{title}: {fact}")
-        return "Task insights:\n" + "\n".join(task_info) + "\n\nSchedule details:\n" + "\n".join(schedule_context)
-    
-    else:
-        # Generic response
-        return f"For your {pet.species} {pet.name}: {facts['general']}\n\nSchedule summary:\n" + "\n".join(schedule_context)
+    # Use RAG for answering
+    try:
+        from chatbot.chat import ask
+        result = ask(question)
+        answer = result["answer"]
+        sources = result["sources"]
+        return f"{answer}\n\nSources: {', '.join(sources)}"
+    except Exception as e:
+        # Fallback to simple response if RAG fails
+        return f"Sorry, I couldn't retrieve information right now. Error: {str(e)}"
