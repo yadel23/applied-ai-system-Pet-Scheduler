@@ -227,10 +227,8 @@ with st.sidebar:
         st.session_state.chat_history = []
     
     # Chat input at the top
-    if prompt := st.chat_input("Ask about your schedule..."):
-        if not st.session_state.schedule:
-            st.toast("Please generate a schedule first.", icon="❌")
-        elif not prompt.strip():
+    if prompt := st.chat_input("Ask simple pet questions..."):
+        if not prompt.strip():
             st.toast("Please enter a question.", icon="❓")
         else:
             from pawpal_system import answer_schedule_question
