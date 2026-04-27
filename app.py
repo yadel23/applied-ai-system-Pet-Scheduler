@@ -219,13 +219,6 @@ if schedule:
         else:
             st.write("  None")
 
-        st.write(f"**Optional tasks ({len(optional)}):**")
-        if optional:
-            for item in optional:
-                st.write(f"  - {item.task.title}")
-        else:
-            st.write("  None")
-
 # Chatbot in sidebar as toast-like chat
 with st.sidebar:
     st.header("💬 PawPal+ Chat")
