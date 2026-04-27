@@ -194,9 +194,6 @@ def retrieve_pet_care_facts(species: str, age: int, task_titles: List[str]) -> d
 
 def answer_schedule_question(owner: Owner, pet: Pet, schedule, question: str) -> str:
     """Answer user questions about the schedule using RAG."""
-    if not schedule:
-        return "Please generate a schedule first before asking questions."
-    
     # Use RAG for answering
     try:
         from chatbot.chat import ask

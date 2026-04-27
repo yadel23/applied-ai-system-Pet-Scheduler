@@ -5,3 +5,5 @@ chromadb
 sentence-transformers
 torch
 torchvision
+transformers>=4.40
+sentencepiece
