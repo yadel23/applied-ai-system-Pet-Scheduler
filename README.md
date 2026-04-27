@@ -1,5 +1,29 @@
 # Applied AI System Pet Scheduler: PawPal+ 
 
+## Summary
+
+PawPal+ is an pet care scheduling assistant built with Python and Streamlit. It helps pet owners plan and manage daily care tasks for their pets by generating conflict-free, priority-aware schedules based on the owner's availability and the pet's needs.
+
+The app combines a constraint-based task scheduler with a RAG (Retrieval-Augmented Generation) chatbot that answers simple pet care questions in real time. The chatbot fetches relevant information directly from Wikipedia, embeds it into a local vector database (chromeDb), and uses a local language model (google/flan-t5-base) to generate focused, context-grounded answers — no cloud API key to worry about. 
+
+### How It Works
+
+**Scheduler**
+The owner enters their name, pet details (name, species, age), and one or more availability windows for the day. They then add care tasks with a title, duration, and priority level. PawPal+ scores each task using a weighted formula (priority × 0.5 + urgency × 0.3 + preference match × 0.2) and packs them sequentially into available time windows — respecting rest blocks, quiet hours, and a configurable daily activity limit. The resulting schedule is displayed in a table with the time, task name, duration, priority, and reasoning for each placement.
+
+**RAG Chatbot Pipeline**
+1. **Keyword extraction** — The user's question is parsed for pet type (dog, cat, rabbit, etc.) and care topic (nutrition, grooming, health, behavior, etc.) to identify the most relevant Wikipedia articles to fetch
+2. **Wikipedia scraping** — Targeted articles are scraped and stored locally
+3. **Sentence-aware chunking** — Articles are split into clean, paragraph-level chunks prefixed with their Wikipedia section header (e.g. `[Diet]`, `[Health]`) so each chunk carries its own context
+4. **Embedding** — Chunks are embedded using `all-MiniLM-L6-v2` (SentenceTransformers) and stored in ChromaDB
+5. **Query expansion** — The user's question is rewritten into 4 search-friendly variants to improve retrieval coverage
+6. **Retrieval + scoring** — All 4 query embeddings are used to search ChromaDB; results are deduplicated and ranked by similarity score; a score threshold filters out loosely related chunks
+7. **Answer generation** — The top-ranked chunks are passed to `google/flan-t5-base` with a structured prompt that instructs the model to give a specific, practical 2–3 sentence answer based only on the provided context
+8. **Fallback** — If no relevant chunks are found, the chatbot honestly responds: "I don't have enough information on that topic."
+
+## Architecture Overview
+
+
 ## DEMO
 ![PawPal App](assets\Demo_Screenshot.png)
 
@@ -23,7 +47,7 @@ streamlit run app.py
 python3 -m pytest
 ```
 
-Confidence Level - 4 stars
+Confidence Level - 3.5 stars
 
 ## Features
 
