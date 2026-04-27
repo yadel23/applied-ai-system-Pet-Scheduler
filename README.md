@@ -27,6 +27,7 @@ The owner enters their name, pet details (name, species, age), and one or more a
 1. Build Index (once per topic) — extracts keywords, scrapes Wikipedia, chunks the text, then embeds and stores it in ChromaDB.
 2. Retrieve & Rank (every question) — expands the query into 4 variants, searches ChromaDB, filters low-scoring results, and re-ranks the top 3 chunks.
 3. Generate Answer — if relevant chunks were found, builds a prompt and runs it through google/flan-t5-base; if not, returns a "not enough information" fallback. The answer goes back to the UI.
+
 ![chat diagram](assets\Chat_diagram.png)
 
 
